@@ -224,7 +224,7 @@ export default function CadastroPage() {
             href="/usuario"
             className="text-purple-900 font-semibold hover:underline"
           >
-            Criar Conta 
+            Criar Conta (via /usuario)
           </a>
         </div>
       </form>
