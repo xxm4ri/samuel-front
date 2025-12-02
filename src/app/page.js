@@ -1,65 +1,67 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Calendar, MapPin, ExternalLink } from "lucide-react";
+
+export default function EventosPage() {
+  const [eventos, setEventos] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/v1/evento")
+      .then((res) => setEventos(res.data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  if (eventos.length === 0) return <div className="text-center p-10 text-white">Carregando eventos...</div>;
+
+  const destaque = eventos[0];
+  const miniaturas = eventos.slice(1);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen w-full bg-gradient-to-br from-purple-200 via-purple-300 to-purple-400 p-6 flex flex-col items-center">
+      {/* Evento em destaque */}
+      <div className="w-full max-w-4xl bg-white/20 backdrop-blur-md shadow-2xl rounded-2xl p-6 mb-10 text-white border border-white/30">
+        <img
+          src={destaque.linkImagem}
+          alt={destaque.nome}
+          className="w-full h-64 object-cover rounded-xl mb-4 shadow-lg"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <h1 className="text-3xl font-bold mb-2 drop-shadow-lg">{destaque.nome}</h1>
+        <p className="mb-3 opacity-90">{destaque.descricao}</p>
+
+        <div className="flex flex-col gap-1 text-sm opacity-90">
+          <div className="flex items-center gap-2"><Calendar size={18} /> Início: {destaque.dataInicio}</div>
+          <div className="flex items-center gap-2"><Calendar size={18} /> Final: {destaque.dataFinal}</div>
+          <div className="flex items-center gap-2"><MapPin size={18} /> {destaque.local}</div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+
+        {destaque.linkEvento && (
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            href={destaque.linkEvento}
             target="_blank"
-            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-purple-700 hover:bg-purple-800 transition rounded-xl shadow-lg"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            Acessar evento <ExternalLink size={18} />
+          </a>
+        )}
+      </div>
+
+      {/* Miniaturas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl">
+        {miniaturas.map((ev) => (
+          <div key={ev.id} className="bg-white/20 backdrop-blur-md rounded-2xl shadow-xl p-4 border border-white/30 text-white hover:scale-[1.03] transition cursor-pointer">
+            <img
+              src={ev.linkImagem}
+              alt={ev.nome}
+              className="w-full h-32 object-cover rounded-xl mb-3 shadow-lg"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <h2 className="font-bold text-lg mb-1 drop-shadow">{ev.nome}</h2>
+            <p className="text-sm opacity-80 line-clamp-2">{ev.descricao}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
